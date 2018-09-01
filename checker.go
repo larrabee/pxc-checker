@@ -1,9 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/labstack/gommon/log"
 	"github.com/valyala/fasthttp"
 	"strconv"
 	"time"
@@ -58,18 +60,24 @@ func checkerHandler(ctx *fasthttp.RequestCtx) {
 		response.ReasonCode = reasonOk
 	}
 
-	if respJson, err := json.Marshal(response); err != nil {
-		errStr := fmt.Sprintf(`{"ReasonText":"Internal checker error","ReasonCode":%d,"err":"%s"}`, reasonInternalError, err)
-		ctx.SetBody([]byte(errStr))
-		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
-	} else {
-		ctx.SetBody(respJson)
+	if ctx.IsGet() {
+		if respJson, err := json.Marshal(response); err != nil {
+			errStr := fmt.Sprintf(`{"ReasonText":"Internal checker error","ReasonCode":%d,"err":"%s"}`, reasonInternalError, err)
+			ctx.SetBody([]byte(errStr))
+			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		} else {
+			ctx.SetBody(respJson)
+		}
 	}
 
 	return
 }
 
 func checker(status *NodeStatus) {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/", config.MysqlUser, config.MysqlPass, config.MysqlHost, config.MysqlPort)
+	log.Printf("Connecting to mysql with dsn: %s", dsn)
+	dbConn, _ := sql.Open("mysql", dsn)
+
 	for {
 		time.Sleep(time.Duration(config.CheckInterval) * time.Millisecond)
 		curStatus := &NodeStatus{}

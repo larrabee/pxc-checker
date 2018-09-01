@@ -1,8 +1,6 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"github.com/buaazp/fasthttprouter"
 	"github.com/labstack/gommon/log"
 	"github.com/namsral/flag"
@@ -35,7 +33,6 @@ type Config struct {
 var (
 	status = &NodeStatus{}
 	config *Config
-	dbConn *sql.DB
 )
 
 func main() {
@@ -44,9 +41,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Options parsing failed with err: %s", err)
 	}
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/", config.MysqlUser, config.MysqlPass, config.MysqlHost, config.MysqlPort)
-	log.Printf("Connecting to mysql with dsn: %s", dsn)
-	dbConn, _ = sql.Open("mysql", dsn)
 
 	go checker(status)
 
