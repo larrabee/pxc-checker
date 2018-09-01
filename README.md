@@ -11,7 +11,7 @@ listen pxc
   balance leastconn
   option httpchk HEAD /
   mode tcp
-  default-server check port 9200 inter 500 rise 5 fall 5
+  default-server inter 500 rise 5 fall 5
     server node1 1.2.3.4:3306 check port 9200
     server node2 1.2.3.5:3306 check port 9200
     server node3 1.2.3.6:3306 check port 9200 backup
