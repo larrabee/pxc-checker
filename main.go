@@ -54,7 +54,6 @@ func main() {
 	server := &fasthttp.Server{
 		Handler:          router.Handler,
 		DisableKeepalive: true,
-		GetOnly:          true,
 		Concurrency:      2048,
 		ReadTimeout:      time.Duration(config.WebReadTimeout) * time.Millisecond,
 		WriteTimeout:     time.Duration(config.WebWriteTimeout) * time.Millisecond,
