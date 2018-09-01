@@ -1,0 +1,13 @@
+[Unit]
+Description=PXC Checker
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/pxc/checker/%i.conf
+ExecStart=/usr/bin/pxc-checker
+KillMode=process
+User=mysql
+Group=mysql
+
+[Install]
+WantedBy=multi-user.target
