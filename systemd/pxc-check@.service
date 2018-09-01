@@ -6,6 +6,7 @@ After=network.target
 EnvironmentFile=/etc/pxc/checker/%i.conf
 ExecStart=/usr/bin/pxc-checker
 KillMode=process
+Restart=always
 User=mysql
 Group=mysql
 

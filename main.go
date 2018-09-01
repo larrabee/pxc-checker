@@ -68,21 +68,22 @@ func main() {
 func getRouter() *fasthttprouter.Router {
 	router := fasthttprouter.New()
 	router.GET("/", checkerHandler)
+	router.HEAD("/", checkerHandler)
 	return router
 }
 
 func parseFlags() (*Config, error) {
 	config := Config{}
-	flag.StringVar(&config.WebListen, "WEB_LISTEN", ":9200", "Listen interface and port")
-	flag.IntVar(&config.WebReadTimeout, "WEB_READ_TIMEOUT", 30000, "Request read timeout, ms")
-	flag.IntVar(&config.WebWriteTimeout, "WEB_WRITE_TIMEOUT", 30000, "Request write timeout, ms")
-	flag.BoolVar(&config.CheckROEnabled, "CHECK_RO_ENABLED", false, "Make 'read_only' nodes availible")
-	flag.BoolVar(&config.CheckForceEnable, "CHECK_FORCE_ENABLE", false, "Ignoring checks status and force enable node")
+	flag.StringVar(&config.WebListen, "WEB_LISTEN", ":9200", "Web server listening interface and port")
+	flag.IntVar(&config.WebReadTimeout, "WEB_READ_TIMEOUT", 30000, "Web server request read timeout, ms")
+	flag.IntVar(&config.WebWriteTimeout, "WEB_WRITE_TIMEOUT", 30000, "Web server request write timeout, ms")
+	flag.BoolVar(&config.CheckROEnabled, "CHECK_RO_ENABLED", false, "Mark 'read_only' node as available")
+	flag.BoolVar(&config.CheckForceEnable, "CHECK_FORCE_ENABLE", false, "Ignoring the status of the checks and always marking the node as available")
 	flag.IntVar(&config.CheckInterval, "CHECK_INTERVAL", 500, "Mysql checks interval, ms")
-	flag.IntVar(&config.CheckFailTimeout, "CHECK_FAIL_TIMEOUT", 3000, "To count a node inaccessible if for the specified time there were no successful checks, ms")
+	flag.IntVar(&config.CheckFailTimeout, "CHECK_FAIL_TIMEOUT", 3000, "Mark the node inaccessible if for the specified time there were no successful checks, ms")
 	flag.StringVar(&config.MysqlHost, "MYSQL_HOST", "127.0.0.1", "MySQL host addr")
-	flag.IntVar(&config.MysqlPort, "MYSQL_PORT", 3306, "MySQL port addr")
-	flag.StringVar(&config.MysqlUser, "MYSQL_USER", "monitor", "MySQL username")
+	flag.IntVar(&config.MysqlPort, "MYSQL_PORT", 3306, "MySQL port")
+	flag.StringVar(&config.MysqlUser, "MYSQL_USER", "pxc_checker", "MySQL username")
 	flag.StringVar(&config.MysqlPass, "MYSQL_PASS", "", "MySQL password")
 
 	flag.Parse()
