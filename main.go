@@ -22,14 +22,13 @@ type Config struct {
 	WebReadTimeout   int
 	WebWriteTimeout  int
 	CheckROEnabled   bool
-	CheckInterval    int
+	CheckInterval    int64
 	CheckFailTimeout int64
 	CheckForceEnable bool
 	MysqlHost        string
 	MysqlPort        int
 	MysqlUser        string
 	MysqlPass        string
-	MysqlTimeout     int
 }
 
 var (
@@ -76,7 +75,7 @@ func parseFlags() *Config {
 	flag.IntVar(&config.WebWriteTimeout, "WEB_WRITE_TIMEOUT", 30000, "Web server request write timeout, ms")
 	flag.BoolVar(&config.CheckROEnabled, "CHECK_RO_ENABLED", false, "Mark 'read_only' node as available")
 	flag.BoolVar(&config.CheckForceEnable, "CHECK_FORCE_ENABLE", false, "Ignoring the status of the checks and always marking the node as available")
-	flag.IntVar(&config.CheckInterval, "CHECK_INTERVAL", 500, "Mysql checks interval, ms")
+	flag.Int64Var(&config.CheckInterval, "CHECK_INTERVAL", 500, "Mysql checks interval, ms")
 	flag.Int64Var(&config.CheckFailTimeout, "CHECK_FAIL_TIMEOUT", 3000, "Mark the node inaccessible if for the specified time there were no successful checks, ms")
 	flag.StringVar(&config.MysqlHost, "MYSQL_HOST", "127.0.0.1", "MySQL host addr")
 	flag.IntVar(&config.MysqlPort, "MYSQL_PORT", 3306, "MySQL port")

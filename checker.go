@@ -110,13 +110,13 @@ func checker(status *NodeStatus) {
 	}
 }
 
-func sleepRemain(startTime int64, sleepTime int) {
+func sleepRemain(startTime int64, sleepTime int64) {
 	curTime := unixTimestampMillisecond()
-	actualSleepTime := int64(sleepTime) - (curTime - startTime)
+	actualSleepTime := sleepTime - (curTime - startTime)
 
 	if actualSleepTime <= 0 {
 		return
-	} else if actualSleepTime >= int64(sleepTime) {
+	} else if actualSleepTime >= sleepTime {
 		time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 	} else {
 		time.Sleep(time.Duration(actualSleepTime) * time.Millisecond)
