@@ -46,7 +46,7 @@ func checkerHandler(ctx *fasthttp.RequestCtx) {
 		ctx.SetStatusCode(fasthttp.StatusServiceUnavailable)
 		response.ReasonText = "WSRep failed"
 		response.ReasonCode = reasonWSRepFailed
-	} else if float64(status.Timestamp)+float64(config.CheckFailTimeout)/1000 < float64(time.Now().Unix()) {
+	} else if status.Timestamp+config.CheckFailTimeout < unixTimestampMillisecond() {
 		ctx.SetStatusCode(fasthttp.StatusServiceUnavailable)
 		response.ReasonText = "Check timeout"
 		response.ReasonCode = reasonCheckTimeout
@@ -79,9 +79,9 @@ func checker(status *NodeStatus) {
 	dbConn, _ := sql.Open("mysql", dsn)
 
 	for {
-		time.Sleep(time.Duration(config.CheckInterval) * time.Millisecond)
+		sleepRemain(status.Timestamp, config.CheckInterval)
 		curStatus := &NodeStatus{}
-		curStatus.Timestamp = int(time.Now().Unix())
+		curStatus.Timestamp = unixTimestampMillisecond()
 
 		rows, err := dbConn.Query("SHOW GLOBAL VARIABLES;")
 		if err != nil {
@@ -106,7 +106,25 @@ func checker(status *NodeStatus) {
 				curStatus.WSRepStatus, _ = strconv.Atoi(value)
 			}
 		}
-
 		*status = *curStatus
 	}
+}
+
+func sleepRemain(startTime int64, sleepTime int) {
+	curTime := unixTimestampMillisecond()
+	actualSleepTime := int64(sleepTime) - (curTime - startTime)
+
+	if actualSleepTime <= 0 {
+		return
+	} else if actualSleepTime >= int64(sleepTime) {
+		time.Sleep(time.Duration(sleepTime) * time.Millisecond)
+	} else {
+		time.Sleep(time.Duration(actualSleepTime) * time.Millisecond)
+	}
+
+	return
+}
+
+func unixTimestampMillisecond() int64 {
+	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
 }
