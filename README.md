@@ -1,5 +1,5 @@
 # Percona/MySQL XtraDB Cluster Checker
-This project is [percona-clustercheck](https://github.com/olafz/percona-clustercheck) rewrited to Golang.  
+This project is [percona-clustercheck](https://github.com/olafz/percona-clustercheck) like checker rewrited to Golang. 
 Program to make a proxy (ie HAProxy) capable of monitoring Percona XtraDB Cluster nodes properly.
 
 ## Usage

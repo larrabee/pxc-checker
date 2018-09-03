@@ -30,7 +30,6 @@ type Response struct {
 }
 
 func checkerHandler(ctx *fasthttp.RequestCtx) {
-
 	response := Response{NodeStatus: status}
 	ctx.SetContentType("application/json")
 
