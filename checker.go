@@ -82,7 +82,7 @@ func checker(status *NodeStatus) {
 		curStatus := &NodeStatus{}
 		curStatus.Timestamp = unixTimestampMillisecond()
 
-		rows, err := dbConn.Query("SHOW GLOBAL VARIABLES;")
+		rows, err := dbConn.Query("SHOW GLOBAL VARIABLES LIKE 'read_only';")
 		if err != nil {
 			*status = *curStatus
 			continue
@@ -96,15 +96,29 @@ func checker(status *NodeStatus) {
 				*status = *curStatus
 				continue
 			}
-			switch key {
-			case "read_only":
-				if value == "OFF" {
-					curStatus.RWEnabled = true
-				}
-			case "wsrep_local_state":
+			if (key == "read_only") && (value == "OFF") {
+				curStatus.RWEnabled = true
+			}
+		}
+
+		rows, err = dbConn.Query("SHOW STATUS LIKE 'wsrep_local_state';")
+		if err != nil {
+			*status = *curStatus
+			continue
+		}
+
+		for rows.Next() {
+			var key, value string
+			err := rows.Scan(&key, &value)
+			if err != nil {
+				*status = *curStatus
+				continue
+			}
+			if key == "wsrep_local_state" {
 				curStatus.WSRepStatus, _ = strconv.Atoi(value)
 			}
 		}
+
 		*status = *curStatus
 	}
 }
