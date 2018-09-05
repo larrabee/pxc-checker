@@ -81,43 +81,28 @@ func checker(status *NodeStatus) {
 		sleepRemain(status.Timestamp, config.CheckInterval)
 		curStatus := &NodeStatus{}
 		curStatus.Timestamp = unixTimestampMillisecond()
+		var key, value string
 
-		rows, err := dbConn.Query("SHOW GLOBAL VARIABLES LIKE 'read_only';")
+		row := dbConn.QueryRow("SHOW GLOBAL VARIABLES LIKE 'read_only';")
+
+		err := row.Scan(&key, &value)
 		if err != nil {
 			*status = *curStatus
 			continue
 		}
+		if value == "OFF" {
+			curStatus.RWEnabled = true
+		}
+
 		curStatus.NodeAvailable = true
 
-		for rows.Next() {
-			var key, value string
-			err := rows.Scan(&key, &value)
-			if err != nil {
-				*status = *curStatus
-				continue
-			}
-			if (key == "read_only") && (value == "OFF") {
-				curStatus.RWEnabled = true
-			}
-		}
-
-		rows, err = dbConn.Query("SHOW STATUS LIKE 'wsrep_local_state';")
+		row = dbConn.QueryRow("SHOW STATUS LIKE 'wsrep_local_state';")
+		err = row.Scan(&key, &value)
 		if err != nil {
 			*status = *curStatus
 			continue
 		}
-
-		for rows.Next() {
-			var key, value string
-			err := rows.Scan(&key, &value)
-			if err != nil {
-				*status = *curStatus
-				continue
-			}
-			if key == "wsrep_local_state" {
-				curStatus.WSRepStatus, _ = strconv.Atoi(value)
-			}
-		}
+		curStatus.WSRepStatus, _ = strconv.Atoi(value)
 
 		*status = *curStatus
 	}
