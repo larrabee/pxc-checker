@@ -11,10 +11,11 @@ import (
 )
 
 type NodeStatus struct {
-	WSRepStatus   int
-	RWEnabled     bool
-	NodeAvailable bool
-	Timestamp     int64
+	WSRepStatus    int
+	RWEnabled      bool
+	NodeAvailable  bool
+	ClusterPrimary bool
+	Timestamp      int64
 }
 
 type Config struct {

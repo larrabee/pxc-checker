@@ -14,13 +14,14 @@ import (
 type ReasonCode int
 
 const (
-	reasonInternalError    ReasonCode = -1
-	reasonOk               ReasonCode = 0
-	reasonForceEnabled     ReasonCode = 1
-	reasonNodeNotAvailable ReasonCode = 2
-	reasonWSRepFailed      ReasonCode = 3
-	reasonCheckTimeout     ReasonCode = 4
-	reasonRWDisabled       ReasonCode = 5
+	reasonInternalError     ReasonCode = -1
+	reasonOk                ReasonCode = 0
+	reasonForceEnabled      ReasonCode = 1
+	reasonNodeNotAvailable  ReasonCode = 2
+	reasonWSRepFailed       ReasonCode = 3
+	reasonCheckTimeout      ReasonCode = 4
+	reasonRWDisabled        ReasonCode = 5
+	reasonNonPrimaryCluster ReasonCode = 6
 )
 
 type Response struct {
@@ -41,6 +42,10 @@ func checkerHandler(ctx *fasthttp.RequestCtx) {
 		ctx.SetStatusCode(fasthttp.StatusServiceUnavailable)
 		response.ReasonText = "Node is not available"
 		response.ReasonCode = reasonNodeNotAvailable
+	} else if !status.ClusterPrimary {
+		ctx.SetStatusCode(fasthttp.StatusServiceUnavailable)
+		response.ReasonText = "Node in non-Primary cluster"
+		response.ReasonCode = reasonNonPrimaryCluster
 	} else if (status.WSRepStatus != 4) && (status.WSRepStatus != 2) {
 		ctx.SetStatusCode(fasthttp.StatusServiceUnavailable)
 		response.ReasonText = "WSRep failed"
@@ -87,8 +92,7 @@ func checker(status *NodeStatus) {
 
 		err := row.Scan(&key, &value)
 		if err != nil {
-			*status = *curStatus
-			continue
+			goto Finish
 		}
 		if value == "OFF" {
 			curStatus.RWEnabled = true
@@ -99,11 +103,20 @@ func checker(status *NodeStatus) {
 		row = dbConn.QueryRow("SHOW STATUS LIKE 'wsrep_local_state';")
 		err = row.Scan(&key, &value)
 		if err != nil {
-			*status = *curStatus
-			continue
+			goto Finish
 		}
 		curStatus.WSRepStatus, _ = strconv.Atoi(value)
 
+		row = dbConn.QueryRow("SHOW STATUS LIKE 'wsrep_cluster_status';")
+		err = row.Scan(&key, &value)
+		if err != nil {
+			goto Finish
+		}
+		if value == "Primary" {
+			curStatus.ClusterPrimary = true
+		}
+
+	Finish:
 		*status = *curStatus
 	}
 }
