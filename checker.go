@@ -22,6 +22,7 @@ const (
 	reasonCheckTimeout      ReasonCode = 4
 	reasonRWDisabled        ReasonCode = 5
 	reasonNonPrimaryCluster ReasonCode = 6
+	reasonDonorsDisabled    ReasonCode = 7
 )
 
 type Response struct {
@@ -34,7 +35,7 @@ func checkerHandler(ctx *fasthttp.RequestCtx) {
 	response := Response{NodeStatus: status}
 	ctx.SetContentType("application/json")
 
-	if config.CheckForceEnable {
+	if config.CheckForceEnabled {
 		ctx.SetStatusCode(fasthttp.StatusOK)
 		response.ReasonText = "Force enabled"
 		response.ReasonCode = reasonForceEnabled
@@ -46,6 +47,10 @@ func checkerHandler(ctx *fasthttp.RequestCtx) {
 		ctx.SetStatusCode(fasthttp.StatusServiceUnavailable)
 		response.ReasonText = "Node in non-Primary cluster"
 		response.ReasonCode = reasonNonPrimaryCluster
+	} else if (status.WSRepStatus == 2) && !config.CheckDonorsEnabled {
+		ctx.SetStatusCode(fasthttp.StatusServiceUnavailable)
+		response.ReasonText = "Node currently is donor"
+		response.ReasonCode = reasonDonorsDisabled
 	} else if (status.WSRepStatus != 4) && (status.WSRepStatus != 2) {
 		ctx.SetStatusCode(fasthttp.StatusServiceUnavailable)
 		response.ReasonText = "WSRep failed"
