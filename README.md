@@ -44,7 +44,7 @@ You can override any of the following values in configuration file:
 - `WEB_WRITE_TIMEOUT`: Web server request write timeout in milliseconds. Default: `30000`
 - `CHECK_RO_ENABLED`: Mark 'read_only' node as available. Default: `false`
 - `CHECK_FORCE_ENABLED`: Ignoring the status of the checks and always marking the node as available. Default: `false`
-- `CHECK_DONORS_ENABLED`: Mark donors nodes as available. By default donor nodes marking as failed. Default: `false`
+- `CHECK_DONORS_ENABLED`: Mark donors nodes as available. Default: `true`
 - `CHECK_INTERVAL`: Mysql checks interval in milliseconds. Default: `500`
 - `CHECK_FAIL_TIMEOUT`: Mark the node inaccessible if for the specified time (in milliseconds) there were no successful checks. Default: `3000`
 - `MYSQL_HOST`: MySQL host address. Default: `127.0.0.1`
