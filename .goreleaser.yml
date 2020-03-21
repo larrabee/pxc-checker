@@ -5,8 +5,8 @@ builds:
     env:
       - CGO_ENABLED=0
     binary: pxc-checker
-archive:
-  replacements:
+archives:
+- replacements:
     darwin: MacOS
     linux: Linux
     windows: Windows
