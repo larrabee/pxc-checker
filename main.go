@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"github.com/namsral/flag"
 	"github.com/valyala/fasthttp"
+	"net"
 	"os"
 	"time"
 )
@@ -55,8 +56,13 @@ func main() {
 		WriteTimeout:     time.Duration(config.WebWriteTimeout) * time.Millisecond,
 	}
 
+	ln, err := net.Listen("tcp", config.WebListen)
+	if err != nil {
+		log.Fatalf("Error in net.Listen: %s", err)
+	}
+
 	log.Printf("Server starting on %s", config.WebListen)
-	if err := server.ListenAndServe(config.WebListen); err != nil {
+	if err := server.Serve(ln); err != nil {
 		log.Fatalf("Error in ListenAndServe: %s", err)
 	}
 }
