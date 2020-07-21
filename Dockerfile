@@ -7,7 +7,9 @@ COPY . ./
 RUN go mod vendor && \
     go build -o pxc-checker ./
 
-# Create s3sync image
+# Create image
 FROM scratch
+EXPOSE 9200
+ENV WEB_LISTEN ":9200"
 COPY --from=builder /src/pxc-checker /pxc-checker
 ENTRYPOINT ["/pxc-checker"]
