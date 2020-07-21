@@ -17,3 +17,4 @@
 pxc-checker
 config/test.conf
 dist/
+vendor/
